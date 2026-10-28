@@ -1,0 +1,87 @@
+MVP app for a civic-tech product called JanSeva AI or Public Services Assistant. The app should have an iOS-inspired interface with clean glassmorphism cards, soft gradients, large rounded corners, subtle shadows, and premium mobile-first UI.
+
+Core experience:
+
+Start with a full-screen animated intro where a 3D-like globe rotates on the screen.
+The globe should smoothly transition and zoom into India, with India highlighted by a glowing pulse or animated ring.
+After the globe transition, the app reveals the main interface.
+The overall vibe should feel premium, modern, and trustworthy like an Apple iOS app.
+Design language:
+
+iOS-like aesthetic:
+white / off-white background
+soft blue, teal, indigo gradients
+glass cards with blur
+large rounded buttons
+minimal typography
+smooth animations
+bottom tab bar
+top header with app title and user avatar
+Use a responsive layout that works on mobile first, but also looks good on desktop.
+Add subtle motion and micro-interactions.
+Use system-like fonts or modern UI fonts.
+App concept: A citizen-first public services assistant for India. Features to include:
+
+Welcome screen and brand name: JanSeva AI
+Search bar: “What government service do you need?”
+Quick action cards:
+Scholarship finder
+Government benefits
+Form guidance
+Report local civic issue
+Complaint tracking
+State selector / region selector
+AI assistant chat interface preview
+Status cards showing:
+eligible schemes
+pending forms
+complaint in progress
+Local-language toggle for Hindi/English and sample regional language labels
+Simple “How it works” section with 3 steps
+A CTA to get started
+Animation details:
+
+Globe intro should be visually rich but not too heavy.
+Use CSS or SVG animations to animate latitude/longitude lines.
+The globe should rotate slowly and then transition into a map shape focusing on India.
+Add a soft highlight on India with a radial glow.
+After the transition, the globe dissolves behind the main content.
+Keep the animation under 2.5 seconds; it should feel cinematic and premium.
+UI sections:
+
+Intro screen with animated globe
+Main dashboard
+Quick actions
+AI assistant card
+Benefit tracker / complaint tracker
+Footer navigation with tabs like Home, Services, Status, Profile
+Interactions:
+
+Hover effects on cards
+Buttons with smooth scale/press animations
+Tabs with active highlight states
+Search input styled like iOS
+Cards animate in on page load with subtle delay
+Use soft shadows and glow effects
+Tech requirements:
+
+Build in React with Vite
+Use plain CSS or Tailwind CSS
+Keep code clean and componentized
+Ensure it runs locally in Replit
+Use no heavy 3D library unless necessary; CSS/SVG animation is preferred for performance
+Make it easy to customize colors and text
+Use semantic class names and modular CSS
+Deliverable:
+
+Complete working app in a single-page frontend
+All UI and animations included
+Responsive design
+No placeholder text beyond realistic civic-service content
+Production-quality visual polish
+Important:
+
+Do not make it look generic or too dark.
+Make it feel premium and friendly for Indian citizens.
+Show a clear flow from globe transition to app dashboard.
+Use premium gradients, glassmorphism, and iOS-like finesse."

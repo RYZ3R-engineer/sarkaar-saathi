@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sarkari Saathi | सरकारी साथी</title>
+<style>
+:root{--sf:#ff9933;--gr:#138808;--nv:#1a237e;--bg:#fffaf3;--card:#fff;--tx:#1b1b1b;--mut:#666;--bd:#e6dccb}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari",sans-serif;background:var(--bg);color:var(--tx);font-size:17px}
+header{background:var(--nv);color:#fff;padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:20px;flex:1;min-width:150px}
+header small{display:block;font-weight:400;font-size:12px;opacity:.85}
+header select,header button{font-size:14px;padding:6px 8px;border-radius:8px;border:0}
+nav{display:flex;overflow-x:auto;background:#fff;border-bottom:3px solid var(--sf);position:sticky;top:56px;z-index:4}
+nav button{flex:1;min-width:92px;padding:12px 6px;border:0;background:none;font-size:15px;font-weight:600;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--nv);border-bottom:4px solid var(--gr);margin-bottom:-3px}
+main{max-width:980px;margin:0 auto;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;font:inherit}
+.card:hover{border-color:var(--sf);box-shadow:0 2px 10px #0001}
+.card .ic{font-size:34px}.card small{color:var(--mut);font-size:12px}
+.badge{font-size:12px;background:#eef7ec;color:var(--gr);padding:2px 8px;border-radius:99px;align-self:flex-start;margin-top:4px}
+.btn{display:inline-flex;gap:6px;align-items:center;justify-content:center;padding:11px 16px;border-radius:12px;border:2px solid var(--nv);background:#fff;color:var(--nv);font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--gr);border-color:var(--gr);color:#fff}.btn.danger{border-color:#b00020;color:#b00020}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.box{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:14px;margin:12px 0}
+input.big,select.big,textarea{width:100%;padding:12px;font:inherit;border:2px solid var(--bd);border-radius:12px;background:#fff}
+input,select{font:inherit}
+.note{font-size:13px;color:var(--mut)}
+.pf{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.pf label{font-size:13px;font-weight:600;color:var(--nv)}
+.pf .in{display:flex;gap:6px}.pf input,.pf select{flex:1;padding:10px;border:2px solid var(--bd);border-radius:10px;min-width:0}
+.pf button{border:0;background:#eee;border-radius:10px;padding:0 10px;font-size:18px}
+#modal{position:fixed;inset:0;background:#0008;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#modal[hidden],#busy[hidden],.box[hidden]{display:none}
+.sheet{background:#fff;width:100%;max-width:760px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px;position:relative}
+.sheet .x{position:absolute;right:12px;top:10px;border:0;background:#eee;border-radius:50%;width:36px;height:36px;font-size:16px}
+.chk{list-style:none;padding:0}.chk li{padding:6px 0;border-bottom:1px dashed var(--bd)}
+.gl{font-size:20px;color:var(--mut);margin-top:10px}.gv{font-size:32px;font-weight:700;word-break:break-all;margin:10px 0;color:var(--nv)}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:99px;z-index:40;font-size:15px;max-width:90vw}
+#busy{position:fixed;inset:0;background:#fff9;z-index:30;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--nv)}
+.chat{max-height:320px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.msg{padding:10px 12px;border-radius:14px;max-width:88%;white-space:pre-wrap}
+.msg.u{background:#e8f0fe;align-self:flex-end}.msg.a{background:#f1f8e9;align-self:flex-start}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.chips button{border:1px solid var(--bd);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--bd);padding:6px;text-align:left;vertical-align:top}
+.warn{background:#fff4e5;border-left:5px solid var(--sf);padding:8px 10px;margin:6px 0;border-radius:6px}
+iframe{width:100%;height:260px;border:0;border-radius:12px}
+img.th{width:100%;height:110px;object-fit:cover;border-radius:8px;background:#eee}
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="ttl"></span><small id="tag"></small></h1>
+  <select id="langSel" title="Voice / भाषा"></select>
+  <button onclick="toggleUI()" id="uiBtn">EN / हिं</button>
+  <button onclick="openSettings()">⚙</button>
+</header>
+<nav id="nav"></nav>
+<main id="view"></main>
+<div id="modal" hidden onclick="if(event.target===this)closeModal()"></div>
+<div id="busy" hidden>⏳ …</div>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ================= DATA ================= */
+const LANGS=[
+ {c:'hi-IN',n:'हिन्दी',st:'Hindi · UP, Bihar, MP, Rajasthan, Delhi…'},
+ {c:'bn-IN',n:'বাংলা',st:'Bengali · West Bengal, Tripura'},
+ {c:'ta-IN',n:'தமிழ்',st:'Tamil · Tamil Nadu'},
+ {c:'te-IN',n:'తెలుగు',st:'Telugu · Andhra, Telangana'},
+ {c:'mr-IN',n:'मराठी',st:'Marathi · Maharashtra, Goa'},
+ {c:'gu-IN',n:'ગુજરાતી',st:'Gujarati · Gujarat'},
+ {c:'kn-IN',n:'ಕನ್ನಡ',st:'Kannada · Karnataka'},
+ {c:'ml-IN',n:'മലയാളം',st:'Malayalam · Kerala'},
+ {c:'pa-IN',n:'ਪੰਜਾਬੀ',st:'Punjabi · Punjab'},
+ {c:'or-IN',n:'ଓଡ଼ିଆ',st:'Odia · Odisha'},
+ {c:'as-IN',n:'অসমীয়া',st:'Assamese · Assam'},
+ {c:'ur-IN',n:'اردو',st:'Urdu · J&K'},
+ {c:'en-IN',n:'English',st:'English · NE states, all'}
+];
+const langName=c=>{const l=LANGS.find(x=>x.c===c);return l?l.st.split(' · ')[0]+' ('+l.n+')':c};
+const STATES=[['Andhra Pradesh','te-IN'],['Arunachal Pradesh','en-IN'],['Assam','as-IN'],['Bihar','hi-IN'],['Chhattisgarh','hi-IN'],['Delhi','hi-IN'],['Goa','mr-IN'],['Gujarat','gu-IN'],['Haryana','hi-IN'],['Himachal Pradesh','hi-IN'],['Jammu & Kashmir','ur-IN'],['Jharkhand','hi-IN'],['Karnataka','kn-IN'],['Kerala','ml-IN'],['Ladakh','hi-IN'],['Madhya Pradesh','hi-IN'],['Maharashtra','mr-IN'],['Manipur','en-IN'],['Meghalaya','en-IN'],['Mizoram','en-IN'],['Nagaland','en-IN'],['Odisha','or-IN'],['Punjab','pa-IN'],['Rajasthan','hi-IN'],['Sikkim','en-IN'],['Tamil Nadu','ta-IN'],['Telangana','te-IN'],['Tripura','bn-IN'],['Uttar Pradesh','hi-IN'],['Uttarakhand','hi-IN'],['West Bengal','bn-IN']];
+
+const DOCS={
+ aadhaar:{ic:'🆔',en:'Aadhaar card',hi:'आधार कार्ड'},
+ pan:{ic:'💳',en:'PAN card',hi:'पैन कार्ड'},
+ photo:{ic:'🖼',en:'Passport-size photo',hi:'पासपोर्ट साइज़ फोटो'},
+ sign:{ic:'✍',en:'Signature',hi:'हस्ताक्षर'},
+ addr:{ic:'🏠',en:'Address proof (bill / rent / etc.)',hi:'पते का प्रमाण (बिल / किराया आदि)'},
+ dob:{ic:'🎂',en:'Date of birth proof (10th certificate / birth cert.)',hi:'जन्म तिथि का प्रमाण (10वीं का सर्टिफिकेट / जन्म प्रमाण पत्र)'},
+ bank:{ic:'🏦',en:'Bank passbook / cancelled cheque',hi:'बैंक पासबुक / कैंसिल चेक'},
+ income:{ic:'💰',en:'Income certificate',hi:'आय प्रमाण पत्र'},
+ caste:{ic:'📜',en:'Caste certificate',hi:'जाति प्रमाण पत्र'},
+ marks:{ic:'📝',en:'Marksheet',hi:'मार्कशीट'},
+ ration:{ic:'🍚',en:'Ration card',hi:'राशन कार्ड'},
+ land:{ic:'🌾',en:'Land records',hi:'ज़मीन के कागज़ात'},
+ voter:{ic:'🗳',en:'Voter ID',hi:'वोटर आईडी'},
+ other:{ic:'📎',en:'Other',hi:'अन्य'}
+};
+
+const F=(id,ic,en,hi,online,url,map,docs,sen,shi)=>({id,ic,en,hi,online,url,map,docs,sen,shi});
+const FORMS=[
+ F('aadhaar','🆔','Aadhaar Update (address / mobile / details)','आधार अपडेट (पता / मोबाइल / जानकारी)',true,'https://myaadhaar.uidai.gov.in','Aadhaar Seva Kendra',['aadhaar','addr'],
+  ['Open myAadhaar and log in with your Aadhaar number and the OTP sent to your linked mobile','Choose "Update Aadhaar" and select what you want to change (address etc.)','Upload a clear scan of your address proof within the size limit shown, and save the URN number','If your mobile is not linked, visit an Aadhaar Seva Kendra for biometrics'],
+  ['myAadhaar खोलें और आधार नंबर + मोबाइल पर आए OTP से लॉगिन करें','"आधार अपडेट" चुनें और जो बदलना है (पता आदि) चुनें','पते का प्रमाण साफ़ स्कैन करके साइट की साइज़ सीमा के अंदर अपलोड करें और URN नंबर संभालकर रखें','मोबाइल लिंक नहीं है तो बायोमेट्रिक के लिए आधार सेवा केंद्र जाएँ']),
+ F('pan','💳','New PAN Card','नया पैन कार्ड',true,'https://www.incometax.gov.in','PAN card service centre',['aadhaar','dob','photo','sign'],
+  ['Open the Income Tax portal and choose "Instant e-PAN" (your Aadhaar must be linked to your mobile)','Enter your Aadhaar number and verify with OTP','Check the details and submit. The e-PAN arrives as a PDF. For a physical card apply through NSDL or UTIITSL'],
+  ['आयकर पोर्टल पर "Instant e-PAN" चुनें (आधार से मोबाइल जुड़ा होना चाहिए)','आधार नंबर डालें और OTP से पुष्टि करें','जानकारी जाँचकर जमा करें। e-PAN PDF में मिलेगा। असली कार्ड के लिए NSDL या UTIITSL से आवेदन करें']),
+ F('passport','🛂','Passport (new / renewal)','पासपोर्ट (नया / नवीनीकरण)',true,'https://www.passportindia.gov.in','Passport Seva Kendra',['aadhaar','dob','addr','pan'],
+  ['Register on the Passport Seva portal and log in','Fill the online application and pay the fee','Book an appointment at a Passport Seva Kendra (PSK)','Go to the PSK on that date with your original documents'],
+  ['पासपोर्ट सेवा पोर्टल पर रजिस्टर करके लॉगिन करें','ऑनलाइन आवेदन भरें और फीस जमा करें','पासपोर्ट सेवा केंद्र (PSK) में अपॉइंटमेंट बुक करें','अपॉइंटमेंट वाले दिन असली दस्तावेज़ लेकर केंद्र जाएँ']),
+ F('voter','🗳','Voter ID (Form 6)','वोटर आईडी (फॉर्म 6)',true,'https://voters.eci.gov.in','Electoral Registration Officer office',['aadhaar','dob','addr','photo'],
+  ['Open the Voters\' Service Portal and log in with a mobile OTP','Choose "Form 6" for new voter registration','Fill in the details, upload photo and proofs, and submit','Write down the reference number to track the status'],
+  ['मतदाता सेवा पोर्टल खोलें और मोबाइल OTP से लॉगिन करें','नए मतदाता पंजीकरण के लिए "फॉर्म 6" चुनें','जानकारी भरें, फोटो और प्रमाण अपलोड करके जमा करें','स्थिति देखने के लिए रेफ़रेंस नंबर लिख लें']),
+ F('dl','🚗','Driving Licence / Learner','ड्राइविंग लाइसेंस / लर्नर',true,'https://parivahan.gov.in','RTO office',['aadhaar','dob','addr','photo','sign'],
+  ['Open Parivahan Sarathi and select your state','Choose "Apply for Learner Licence"','Fill in the details, upload photo and signature, and pay the fee','Book a test slot and go to the RTO on that day'],
+  ['परिवहन सारथी खोलें और अपना राज्य चुनें','"लर्नर लाइसेंस के लिए आवेदन" चुनें','जानकारी भरें, फोटो-हस्ताक्षर अपलोड करें और फीस दें','टेस्ट का स्लॉट बुक करें और उस दिन RTO जाएँ']),
+ F('nsp','🎓','Scholarship (National Scholarship Portal)','स्कॉलरशिप (नेशनल स्कॉलरशिप पोर्टल)',true,'https://scholarships.gov.in','Common Service Centre CSC',['aadhaar','marks','income','caste','bank','photo'],
+  ['Register on NSP with your mobile number and email','Log in, fill the application and choose the scheme you are eligible for','Upload your documents and submit','Print the form and get it verified by your school or college if asked'],
+  ['NSP पर मोबाइल और ईमेल से रजिस्टर करें','लॉगिन करके आवेदन भरें और अपनी योग्यता वाली योजना चुनें','दस्तावेज़ अपलोड करके जमा करें','ज़रूरत हो तो फॉर्म का प्रिंट लेकर स्कूल/कॉलेज से सत्यापित कराएँ']),
+ F('pmkisan','🌾','PM-Kisan','पीएम-किसान',true,'https://pmkisan.gov.in','Common Service Centre CSC',['aadhaar','bank','land'],
+  ['Open the PM-Kisan portal and click "New Farmer Registration"','Enter your Aadhaar number and state, and verify your mobile','Fill in land and bank details and submit','Complete e-KYC with an Aadhaar OTP'],
+  ['PM-Kisan पोर्टल खोलें और "New Farmer Registration" दबाएँ','आधार नंबर, राज्य डालें और मोबाइल सत्यापित करें','ज़मीन और बैंक की जानकारी भरकर जमा करें','आधार OTP से e-KYC पूरा करें']),
+ F('ayushman','🏥','Ayushman Bharat Health Card','आयुष्मान भारत हेल्थ कार्ड',true,'https://pmjay.gov.in','Ayushman Bharat empanelled hospital',['aadhaar','ration'],
+  ['Check your eligibility on pmjay.gov.in using your mobile number or ration card','Go to the nearest empanelled hospital or CSC with Aadhaar and ration card','Complete e-KYC and collect your card'],
+  ['pmjay.gov.in पर मोबाइल नंबर या राशन कार्ड से पात्रता जाँचें','आधार और राशन कार्ड लेकर नज़दीकी अस्पताल या CSC जाएँ','e-KYC पूरी करें और कार्ड लें']),
+ F('jandhan','🏦','Jan Dhan Bank Account','जन धन बैंक खाता',false,'https://pmjdy.gov.in','bank branch',['aadhaar','photo','addr'],
+  ['Take your Aadhaar and a photo to the nearest bank branch or Bank Mitra','Ask for a "Jan Dhan account" form and fill it in','Submit it and collect your passbook and RuPay card'],
+  ['आधार और फोटो लेकर नज़दीकी बैंक शाखा या बैंक मित्र के पास जाएँ','"जन धन खाता" फॉर्म माँगकर भरें','जमा करें और पासबुक व RuPay कार्ड लें']),
+ F('income','💰','Income Certificate','आय प्रमाण पत्र',true,'https://services.india.gov.in','Tehsil office',['aadhaar','addr','ration','photo'],
+  ['Open your state e-District portal (search "your state e-District")','Choose Income Certificate and fill in the details','Upload documents and submit. Write down the application number','Collect the certificate online or from the Tehsil office'],
+  ['अपने राज्य का e-District पोर्टल खोलें ("आपका राज्य e-District" खोजें)','आय प्रमाण पत्र चुनकर जानकारी भरें','दस्तावेज़ अपलोड करके जमा करें। आवेदन संख्या लिख लें','प्रमाण पत्र ऑनलाइन या तहसील कार्यालय से लें']),
+ F('caste','📜','Caste Certificate','जाति प्रमाण पत्र',true,'https://services.india.gov.in','Tehsil office',['aadhaar','addr','caste','photo'],
+  ['Open your state e-District portal','Choose Caste Certificate and fill in the details','Upload Aadhaar, address proof, a family caste record and photo, then submit','Collect the certificate after verification'],
+  ['अपने राज्य का e-District पोर्टल खोलें','जाति प्रमाण पत्र चुनकर जानकारी भरें','आधार, पते का प्रमाण, परिवार का जाति रिकॉर्ड और फोटो अपलोड करके जमा करें','जाँच के बाद प्रमाण पत्र लें']),
+ F('domicile','🏠','Domicile / Residence Certificate','अधिवास / निवास प्रमाण पत्र',true,'https://services.india.gov.in','Tehsil office',['aadhaar','addr','dob','photo'],
+  ['Open your state e-District portal','Choose Domicile / Residence Certificate and fill in the details','Upload documents and submit','Collect the certificate online or from the Tehsil office'],
+  ['अपने राज्य का e-District पोर्टल खोलें','अधिवास / निवास प्रमाण पत्र चुनकर जानकारी भरें','दस्तावेज़ अपलोड करके जमा करें','प्रमाण पत्र ऑनलाइन या तहसील कार्यालय से लें']),
+ F('birth','👶','Birth Certificate','जन्म प्रमाण पत्र',true,'https://crsorgi.gov.in','Municipal corporation office birth registration',['aadhaar','addr'],
+  ['Keep the hospital birth report or slip ready','Register on your state or CRS portal, or visit the local registrar','Submit the form with the parents\' Aadhaar and address proof','Collect the certificate'],
+  ['अस्पताल की जन्म रिपोर्ट या पर्ची तैयार रखें','अपने राज्य/CRS पोर्टल पर रजिस्टर करें या स्थानीय रजिस्ट्रार के पास जाएँ','माता-पिता के आधार और पते के प्रमाण के साथ फॉर्म जमा करें','प्रमाण पत्र लें']),
+ F('epf','💼','PF / UAN (EPFO)','पीएफ / यूएएन (EPFO)',true,'https://www.epfindia.gov.in','EPFO office',['aadhaar','pan','bank'],
+  ['Open the EPFO member portal and log in with your UAN','Activate your UAN with an Aadhaar OTP if not done','Link bank account, Aadhaar and PAN under Manage → KYC','Then file claims online'],
+  ['EPFO सदस्य पोर्टल खोलें और UAN से लॉगिन करें','UAN चालू नहीं है तो आधार OTP से चालू करें','Manage → KYC में बैंक खाता, आधार और पैन जोड़ें','फिर क्लेम ऑनलाइन करें']),
+ F('ration','🍚','Ration Card','राशन कार्ड',true,'https://nfsa.gov.in','Food and Supply office',['aadhaar','addr','photo','income'],
+  ['Open your state food department portal (links are on nfsa.gov.in)','Fill the new ration card form with all family members','Upload each member\'s Aadhaar, address proof and photo','Track the application and meet the verifying officer if called'],
+  ['अपने राज्य के खाद्य विभाग का पोर्टल खोलें (लिंक nfsa.gov.in पर हैं)','परिवार के सभी सदस्यों के साथ नया राशन कार्ड फॉर्म भरें','हर सदस्य का आधार, पते का प्रमाण और फोटो अपलोड करें','आवेदन की स्थिति देखें और बुलाने पर अधिकारी से मिलें']),
+ F('ujjwala','🔥','Ujjwala LPG Connection','उज्ज्वला गैस कनेक्शन',true,'https://www.pmuy.gov.in','LPG gas agency',['aadhaar','ration','bank','photo'],
+  ['Open the PMUY website and choose "Apply for new Ujjwala connection"','Pick your gas company and nearest distributor','Fill in the details and upload documents, or submit them at the distributor','Complete e-KYC and collect the connection'],
+  ['PMUY वेबसाइट खोलकर "नया उज्ज्वला कनेक्शन" चुनें','अपनी गैस कंपनी और नज़दीकी डिस्ट्रीब्यूटर चुनें','जानकारी भरें और दस्तावेज़ अपलोड करें, या डिस्ट्रीब्यूटर के पास जमा करें','e-KYC पूरी करें और कनेक्शन लें'])
+];
+
+const PF=[
+ {k:'name',en:'Full name',hi:'पूरा नाम'},
+ {k:'father',en:"Father's / Husband's name",hi:'पिता / पति का नाम'},
+ {k:'mother',en:"Mother's name",hi:'माता का नाम'},
+ {k:'dob',en:'Date of birth (DD/MM/YYYY)',hi:'जन्म तिथि (DD/MM/YYYY)'},
+ {k:'gender',en:'Gender',hi:'लिंग',opts:['Male','Female','Other']},
+ {k:'category',en:'Category',hi:'वर्ग',opts:['General','OBC','SC','ST','EWS']},
+ {k:'income',en:'Annual family income (₹)',hi:'सालाना पारिवारिक आय (₹)'},
+ {k:'addr',en:'Address',hi:'पता'},
+ {k:'district',en:'District',hi:'जिला'},
+ {k:'state',en:'State',hi:'राज्य',opts:STATES.map(s=>s[0])},
+ {k:'pin',en:'PIN code',hi:'पिन कोड'},
+ {k:'mobile',en:'Mobile number',hi:'मोबाइल नंबर'},
+ {k:'email',en:'Email',hi:'ईमेल'},
+ {k:'aadhaar',en:'Aadhaar number',hi:'आधार नंबर'},
+ {k:'pan',en:'PAN number',hi:'पैन नंबर'},
+ {k:'bank',en:'Bank account number',hi:'बैंक खाता नंबर'},
+ {k:'ifsc',en:'IFSC code',hi:'IFSC कोड'}
+];
+const SAFE_KEYS=['state','category','income','gender','district']; /* only these go to the AI as context */
+
+const T={
+ en:{app:'Sarkari Saathi',tag:'Fill government forms without fear',forms:'Forms',vault:'My documents',compress:'Compress',profile:'My details',ai:'AI helper',complaints:'Complaints',
+  search:'Search forms…',online:'Online',offline:'In person',listen:'Listen',docsNeeded:'Documents needed',roadmap:'Step-by-step roadmap',open:'Open official website',
+  guided:'Guided fill (one answer at a time)',where:'Where to go / get help',addDoc:'Add a document',upload:'Upload',camera:'Camera',
+  local:'Saved only on this device. Never uploaded anywhere.',fillProfile:'Fill "My details" first',save:'Save',saved:'Saved',download:'Download',del:'Delete',
+  pickFile:'Choose a file first',target:'Target size',maxdim:'Max width/height in px (optional)',output:'Output',run:'Compress / resize',
+  autofill:'Auto-fill on any website',bmDesc:'Drag this button to your bookmarks bar. Then open any government form page and click the bookmark. Your saved details fill in automatically.',
+  fillBtn:'Sarkari Saathi: FILL',copyCode:'Copy code',bmNote:'It never touches captcha, OTP or password fields. You type those yourself. Check everything before you submit. Some sites block bookmarklets.',
+  wipe:'Erase all my data',scan:'Understand a form from a photo',scanDesc:'Give a photo or PDF of a form or notice. AI explains it in your language and matches it with your saved details.',
+  understand:'Explain this',chat:'Ask anything',needKey:'Add your AI key in ⚙ settings first',copy:'Copy',copied:'Copied',
+  type:'Type',prev:'Back',next:'Next',addComplaint:'Track a complaint',ctitle:'What is the problem?',cdept:'Department / portal',cref:'Reference no.',
+  draft:'Draft complaint with AI',official:'Official complaint portals',status:'Status',filed:'Filed',progress:'In progress',resolved:'Resolved',
+  mapHelp:'Find the nearest office / help centre',typeHere:'Type or speak your question…'},
+ hi:{app:'सरकारी साथी',tag:'सरकारी फॉर्म बिना डर के भरें',forms:'फॉर्म',vault:'मेरे दस्तावेज़',compress:'छोटा करें',profile:'मेरी जानकारी',ai:'AI सहायक',complaints:'शिकायतें',
+  search:'फॉर्म खोजें…',online:'ऑनलाइन',offline:'ऑफ़िस जाकर',listen:'सुनें',docsNeeded:'ज़रूरी दस्तावेज़',roadmap:'कदम-दर-कदम रास्ता',open:'सरकारी वेबसाइट खोलें',
+  guided:'एक-एक करके भरवाएँ',where:'कहाँ जाएँ / मदद कहाँ मिलेगी',addDoc:'दस्तावेज़ जोड़ें',upload:'अपलोड',camera:'कैमरा',
+  local:'सिर्फ़ इसी फ़ोन/कंप्यूटर में सुरक्षित। कहीं अपलोड नहीं होता।',fillProfile:'पहले "मेरी जानकारी" भरें',save:'सेव करें',saved:'सेव हो गया',download:'डाउनलोड',del:'हटाएँ',
+  pickFile:'पहले फ़ाइल चुनें',target:'अधिकतम साइज़',maxdim:'अधिकतम चौड़ाई/ऊँचाई (px, वैकल्पिक)',output:'आउटपुट',run:'छोटा करें / साइज़ बदलें',
+  autofill:'किसी भी वेबसाइट पर अपने-आप भरें',bmDesc:'इस बटन को बुकमार्क बार में खींचें। फिर किसी सरकारी फॉर्म वाले पेज पर जाकर बुकमार्क दबाएँ। आपकी जानकारी अपने-आप भर जाएगी।',
+  fillBtn:'सरकारी साथी: भरो',copyCode:'कोड कॉपी करें',bmNote:'कैप्चा, OTP और पासवर्ड यह कभी नहीं भरता। वे आप खुद डालें। सबमिट से पहले सब जाँच लें। कुछ साइटें बुकमार्कलेट रोकती हैं।',
+  wipe:'मेरा सारा डेटा मिटाएँ',scan:'फोटो से फॉर्म समझें',scanDesc:'फॉर्म या नोटिस की फोटो/PDF दें। AI आपकी भाषा में समझाएगा और आपकी जानकारी से मिलान करेगा।',
+  understand:'समझाओ',chat:'कुछ भी पूछिए',needKey:'पहले ⚙ सेटिंग में AI की (key) डालें',copy:'कॉपी',copied:'कॉपी हो गया',
+  type:'प्रकार',prev:'पीछे',next:'आगे',addComplaint:'शिकायत दर्ज करें',ctitle:'समस्या क्या है?',cdept:'विभाग / पोर्टल',cref:'शिकायत संख्या',
+  draft:'AI से शिकायत पत्र लिखवाएँ',official:'सरकारी शिकायत पोर्टल',status:'स्थिति',filed:'दर्ज',progress:'चल रही है',resolved:'हल हो गई',
+  mapHelp:'नज़दीकी दफ़्तर / सहायता केंद्र खोजें',typeHere:'यहाँ लिखें या बोलें…'}
+};
+
+/* ================= STATE / HELPERS ================= */
+const $=s=>document.querySelector(s);
+const store={get:(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+let S={ui:store.get('ui','hi'),lang:store.get('lang','hi-IN'),profile:store.get('profile',{}),cfg:store.get('cfg',{provider:'claude',key:'',model:''}),compl:store.get('compl',[]),chat:[]};
+const t=k=>(T[S.ui][k]??T.en[k]??k);
+const L=o=>S.ui==='hi'?o.hi:o.en;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=b=>b>1048576?(b/1048576).toFixed(2)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+let toastT;function toast(m){const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>e.hidden=true,3200)}
+const busy=on=>$('#busy').hidden=!on;
+async function run(fn){busy(true);try{await fn()}catch(e){console.error(e);toast('⚠ '+(e.message||e))}finally{busy(false)}}
+function modal(h){const m=$('#modal');m.innerHTML=`<div class="sheet"><button class="x" onclick="closeModal()">✕</button>${h}</div>`;m.hidden=false}
+function closeModal(){$('#modal').hidden=true;$('#modal').innerHTML='';stopCam();speechSynthesis&&speechSynthesis.cancel()}
+const catOpts=()=>Object.entries(DOCS).map(([k,v])=>`<option value="${k}">${v.ic} ${L(v)}</option>`).join('');
+const copyText=x=>{navigator.clipboard.writeText(x).then(()=>toast('✅ '+t('copied')),()=>toast('Copy failed'))};
+
+/* ---------- voice ---------- */
+function speak(text,lang=S.lang){
+  if(!('speechSynthesis' in window))return toast('Voice not supported in this browser');
+  speechSynthesis.cancel();
+  const pre=lang.split('-')[0],vs=speechSynthesis.getVoices();
+  const v=vs.find(x=>x.lang.replace('_','-')===lang)||vs.find(x=>x.lang.startsWith(pre));
+  if(!v)toast(`No ${lang} voice on this device. Install it in system language settings.`);
+  String(text).split(/(?<=[.।!?\n])\s*/).filter(x=>x.trim()).forEach(c=>{const u=new SpeechSynthesisUtterance(c);u.lang=lang;if(v)u.voice=v;u.rate=.9;speechSynthesis.speak(u)});
+}
+function listen(cb,lang='en-IN'){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return toast('Speaking to type works in Chrome / Edge');
+  const r=new SR();r.lang=lang;r.onresult=e=>cb(e.results[0][0].transcript);r.onerror=()=>toast('Mic error');r.start();toast('🎤 …');
+}
+
+/* ---------- IndexedDB vault ---------- */
+const DB=new Promise((res,rej)=>{const r=indexedDB.open('saathi',1);r.onupgradeneeded=()=>r.result.createObjectStore('docs',{keyPath:'id',autoIncrement:true});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbop=async(mode,fn)=>{const db=await DB;return new Promise((res,rej)=>{const tx=db.transaction('docs',mode);const rq=fn(tx.objectStore('docs'));tx.oncomplete=()=>res(rq.result);tx.onerror=()=>rej(tx.error)})};
+const dbAll=()=>dbop('readonly',s=>s.getAll()),dbGet=id=>dbop('readonly',s=>s.get(id)),dbAdd=d=>dbop('readwrite',s=>s.add(d)),dbDel=id=>dbop('readwrite',s=>s.delete(id));
+
+/* ---------- image / pdf tools ---------- */
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const toBlob=(c,q)=>new Promise(r=>c.toBlob(r,'image/jpeg',q));
+async function rasterize(blob,maxDim=1600){
+  let src;
+  if(blob.type==='application/pdf'){
+    const pdf=await pdfjsLib.getDocument({data:await blob.arrayBuffer()}).promise,pg=await pdf.getPage(1),vp=pg.getViewport({scale:1.8});
+    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;src=c;
+  }else src=await createImageBitmap(blob);
+  const sc=Math.min(1,maxDim/Math.max(src.width,src.height)),c2=document.createElement('canvas');
+  c2.width=Math.round(src.width*sc);c2.height=Math.round(src.height*sc);
+  const x=c2.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c2.width,c2.height);x.drawImage(src,0,0,c2.width,c2.height);return c2;
+}
+async function toPayload(blob){const c=await rasterize(blob,1600);return {mime:'image/jpeg',b64:c.toDataURL('image/jpeg',.85).split(',')[1]}}
+async function compressSource(src,{maxKB,maxDim}){
+  let sc=maxDim?Math.min(1,maxDim/Math.max(src.width,src.height)):1,w=Math.round(src.width*sc),h=Math.round(src.height*sc),last;
+  for(let a=0;a<10;a++){
+    const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(src,0,0,w,h);
+    let lo=.1,hi=.95,best=null;
+    for(let i=0;i<8;i++){const q=(lo+hi)/2,b=await toBlob(c,q);last=b;if(b.size<=maxKB*1024){best=b;lo=q}else hi=q}
+    if(best)return best;w=Math.round(w*.85);h=Math.round(h*.85);
+  }
+  return last;
+}
+const compressImage=async(blob,o)=>compressSource(await createImageBitmap(blob),o);
+function addFit(doc,dataUrl,w,h){const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),r=Math.min(pw/w,ph/h);doc.addImage(dataUrl,'JPEG',(pw-w*r)/2,0,w*r,h*r)}
+const blobToDataURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function imgToPdf(jpg){const bmp=await createImageBitmap(jpg),doc=new jspdf.jsPDF({unit:'pt',format:'a4',compress:true});addFit(doc,await blobToDataURL(jpg),bmp.width,bmp.height);return doc.output('blob')}
+async function compressPdf(blob,maxKB){
+  const pdf=await pdfjsLib.getDocument({data:await blob.arrayBuffer()}).promise;let scale=1.5,q=.7,out;
+  for(let a=0;a<6;a++){
+    const doc=new jspdf.jsPDF({unit:'pt',format:'a4',compress:true});
+    for(let p=1;p<=pdf.numPages;p++){
+      const pg=await pdf.getPage(p),vp=pg.getViewport({scale}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:x,viewport:vp}).promise;
+      if(p>1)doc.addPage();addFit(doc,c.toDataURL('image/jpeg',q),c.width,c.height);
+    }
+    out=doc.output('blob');if(out.size<=maxKB*1024)return out;scale*=.8;q=Math.max(.3,q-.1);
+  }
+  return out;
+}
+
+/* ---------- LLM ---------- */
+async function llm(system,msgs){
+  const c=S.cfg;if(!c.key){openSettings();throw new Error(t('needKey'))}
+  if(c.provider==='gemini'){
+    const model=c.model||'gemini-2.5-flash';
+    const body={system_instruction:{parts:[{text:system}]},contents:msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[...(m.images||[]).map(i=>({inline_data:{mime_type:i.mime,data:i.b64}})),{text:m.text}]}))};
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(c.key)}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);
+    return (j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+  }
+  const body={model:c.model||'claude-sonnet-5-5',max_tokens:3000,system,messages:msgs.map(m=>({role:m.role,content:[...(m.images||[]).map(i=>({type:'image',source:{type:'base64',media_type:i.mime,data:i.b64}})),{type:'text',text:m.text}]}))};
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+  const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);
+  return j.content.map(p=>p.text||'').join('');
+}
+const translate=(txt,name)=>llm('You translate Indian government form instructions. Use simple everyday words. Output only the translation.',[{role:'user',text:`Translate into ${name}:\n\n${txt}`}]);
+const ctxProfile=()=>SAFE_KEYS.filter(k=>S.profile[k]).map(k=>`${k}: ${S.profile[k]}`).join('; ')||'unknown';
+
+/* ================= UI ================= */
+const TABS=['forms','vault','compress','profile','ai','complaints'];
+let tab='forms';
+function go(x){tab=x;render()}
+function render(){
+  $('#ttl').textContent=t('app');$('#tag').textContent=t('tag');document.documentElement.lang=S.ui;
+  $('#nav').innerHTML=TABS.map(x=>`<button class="${x===tab?'on':''}" onclick="go('${x}')">${{forms:'📋',vault:'🗂',compress:'🗜',profile:'👤',ai:'🤖',complaints:'📢'}[x]} ${t(x)}</button>`).join('');
+  $('#langSel').innerHTML=LANGS.map(l=>`<option value="${l.c}" ${l.c===S.lang?'selected':''}>🔊 ${l.n} — ${l.st.split(' · ')[1]}</option>`).join('');
+  ({forms:vForms,vault:vVault,compress:vCompress,profile:vProfile,ai:vAI,complaints:vComplaints})[tab]();
+}
+$('#langSel').onchange=e=>{S.lang=e.target.value;store.set('lang',S.lang)};
+function toggleUI(){S.ui=S.ui==='hi'?'en':'hi';store.set('ui',S.ui);render()}
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
+
+/* ---------- Forms ---------- */
+let q='';
+function vForms(){
+  $('#view').innerHTML=`<input class="big" placeholder="🔍 ${t('search')}" value="${esc(q)}" oninput="q=this.value;drawForms()"><div id="fl" class="grid"></div>`;drawForms();
+}
+function drawForms(){
+  const n=q.toLowerCase();
+  $('#fl').innerHTML=FORMS.filter(f=>!n||(f.en+' '+f.hi).toLowerCase().includes(n)).map(f=>`<button class="card" onclick="openForm('${f.id}')"><div class="ic">${f.ic}</div><b>${L(f)}</b><small>${S.ui==='hi'?f.en:f.hi}</small><span class="badge">${f.online?'🌐 '+t('online'):'🏢 '+t('offline')}</span></button>`).join('');
+}
+async function openForm(id){
+  const f=FORMS.find(x=>x.id===id),have=new Set((await dbAll()).map(d=>d.cat)),steps=f['s'+S.ui];
+  const mq=encodeURIComponent(f.map+' near me');
+  modal(`<h2>${f.ic} ${L(f)}</h2>
+  <div class="row"><button class="btn pri" onclick="readForm('${id}')">🔊 ${t('listen')}</button><a class="btn" target="_blank" rel="noopener" href="${f.url}">🌐 ${t('open')}</a><button class="btn" onclick="guided()">▶ ${t('guided')}</button></div>
+  <div id="tr" class="box" hidden></div>
+  <h3>${t('docsNeeded')}</h3>
+  <ul class="chk">${f.docs.map(d=>`<li>${have.has(d)?'✅':'❌'} ${DOCS[d].ic} ${L(DOCS[d])} ${have.has(d)?'':`<a href="#" onclick="closeModal();go('vault');return false">➕ ${t('addDoc')}</a>`}</li>`).join('')}</ul>
+  <h3>🗺 ${t('roadmap')}</h3><ol>${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+  <h3>📍 ${t('where')}</h3>
+  <iframe loading="lazy" src="https://www.google.com/maps?q=${mq}&output=embed"></iframe>
+  <div class="row"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/${mq}">📍 ${t('mapHelp')}</a></div>`);
+}
+const trCache={};
+async function readForm(id){
+  const f=FORMS.find(x=>x.id===id),code=S.lang.split('-')[0];
+  const mk=l=>`${f[l]}. ${l==='hi'?'ज़रूरी दस्तावेज़':'Documents needed'}: ${f.docs.map(d=>DOCS[d][l]).join(', ')}. ${l==='hi'?'कदम':'Steps'}: ${f['s'+l].map((s,i)=>`${i+1}. ${s}`).join(' ')}`;
+  let text,lang=S.lang;
+  if(code==='hi'||code==='en')text=mk(code);
+  else{
+    const key=id+S.lang;
+    if(!trCache[key]){busy(true);try{trCache[key]=await translate(mk('en'),langName(S.lang))}catch(e){toast('⚠ '+e.message);text=mk('hi');lang='hi-IN'}finally{busy(false)}}
+    text=trCache[key]||text;
+  }
+  const b=$('#tr');b.hidden=false;b.textContent=text;speak(text,lang);
+}
+let G=null;
+function guided(){
+  const items=PF.filter(p=>S.profile[p.k]);
+  if(!items.length){toast(t('fillProfile'));closeModal();go('profile');return}
+  G={items,i:0};drawGuided();
+}
+function drawGuided(){
+  const p=G.items[G.i],v=S.profile[p.k];
+  modal(`<h2>${G.i+1} / ${G.items.length}</h2><div class="gl">${L(p)}</div><div class="gv">${esc(v)}</div>
+  <div class="row"><button class="btn pri" onclick="gSpeak()">🔊 ${t('listen')}</button><button class="btn" onclick="copyText(G.items[G.i] && S.profile[G.items[G.i].k])">📋 ${t('copy')}</button></div>
+  <div class="row"><button class="btn" onclick="gNav(-1)">◀ ${t('prev')}</button><button class="btn pri" onclick="gNav(1)">${t('next')} ▶</button></div>`);
+}
+function gNav(d){G.i=Math.min(G.items.length-1,Math.max(0,G.i+d));drawGuided()}
+function gSpeak(){const p=G.items[G.i],v=String(S.profile[p.k]);speak(`${p[S.lang.startsWith('hi')?'hi':'en']}: ${/^[\d\s]+$/.test(v)?v.replace(/\d/g,d=>d+' '):v}`,S.lang)}
+
+/* ---------- Vault ---------- */
+async function vVault(){
+  const docs=await dbAll();
+  $('#view').innerHTML=`<div class="box"><b>${t('addDoc')}</b><div class="row"><select class="big" id="vc" style="max-width:300px">${catOpts()}</select>
+  <label class="btn pri">📁 ${t('upload')}<input type="file" hidden multiple accept="image/*,application/pdf" onchange="vUpload(this.files)"></label>
+  <button class="btn" onclick="openCam('vault')">📷 ${t('camera')}</button></div><p class="note">🔒 ${t('local')}</p></div>
+  <div class="grid">${docs.map(d=>`<div class="card" style="cursor:default">${d.type.startsWith('image')?`<img class="th" src="${URL.createObjectURL(d.blob)}">`:'<div class="ic" style="font-size:60px">📄</div>'}
+  <b>${DOCS[d.cat]?DOCS[d.cat].ic+' '+L(DOCS[d.cat]):d.cat}</b><small>${esc(d.name)} · ${fmt(d.size)}</small>
+  <div class="row"><button class="btn" onclick="vDl(${d.id})">⬇</button><button class="btn" onclick="toCompress(${d.id})">🗜</button><button class="btn" onclick="scanDoc(${d.id})">🤖</button><button class="btn danger" onclick="vDel(${d.id})">🗑</button></div></div>`).join('')||`<p class="note">📭</p>`}</div>`;
+}
+async function vUpload(files){for(const f of files)await dbAdd({name:f.name,cat:$('#vc').value,type:f.type,size:f.size,date:Date.now(),blob:f});toast('✅ '+t('saved'));vVault()}
+async function vDel(id){if(confirm('?')){await dbDel(id);vVault()}}
+async function vDl(id){const d=await dbGet(id);dlBlob(d.blob,d.name)}
+function dlBlob(b,name){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+async function toCompress(id){const d=await dbGet(id);C.file=new File([d.blob],d.name,{type:d.type});go('compress')}
+async function scanDoc(id){const d=await dbGet(id);SC.file=d.blob;go('ai');toast('📎 '+d.name)}
+
+/* ---------- Camera ---------- */
+let stream,camMode='vault',camFace='environment',CAMB=null;
+function openCam(mode){
+  camMode=mode;
+  modal(`<h2>📷</h2><video id="cv" autoplay playsinline muted style="width:100%;border-radius:12px;background:#000"></video>
+  <div class="row"><button class="btn pri" onclick="snap()">📸</button><button class="btn" onclick="flipCam()">🔄</button><label class="btn">📁<input type="file" accept="image/*" capture="environment" hidden onchange="camFile(this.files[0])"></label></div><div id="cs"></div>`);
+  startCam();
+}
+async function startCam(){stopCam();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camFace,width:{ideal:1920}}});$('#cv').srcObject=stream}catch(e){toast('Camera blocked or needs https. Use the 📁 button.')}}
+function stopCam(){if(stream)stream.getTracks().forEach(tr=>tr.stop());stream=null}
+function flipCam(){camFace=camFace==='environment'?'user':'environment';startCam()}
+function snap(){const v=$('#cv');if(!v.videoWidth)return;const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);c.toBlob(b=>camFile(b),'image/jpeg',.92)}
+function camFile(b){
+  if(!b)return;
+  if(camMode==='scan'){SC.file=b;closeModal();toast('✅');const n=$('#sfn');if(n)n.textContent='📷';return}
+  if(!(b instanceof File))b=new File([b],'photo-'+Date.now()+'.jpg',{type:b.type||'image/jpeg'});
+  CAMB=b;stopCam();
+  $('#cs').innerHTML=`<img src="${URL.createObjectURL(b)}" style="width:100%;border-radius:12px;margin-top:8px"><div class="row"><select class="big" id="cc" style="max-width:300px">${catOpts()}</select><button class="btn pri" onclick="saveCam()">💾 ${t('save')}</button></div>`;
+}
+async function saveCam(){await dbAdd({name:CAMB.name,cat:$('#cc').value,type:CAMB.type,size:CAMB.size,date:Date.now(),blob:CAMB});closeModal();toast('✅ '+t('saved'));if(tab==='vault')vVault()}
+
+/* ---------- Compress ---------- */
+let C={file:null,out:null,ext:'jpg'};
+function vCompress(){
+  $('#view').innerHTML=`<div class="box"><div class="row"><label class="btn pri">📁 ${t('upload')}<input type="file" hidden accept="image/*,application/pdf" onchange="C.file=this.files[0];C.out=null;vCompress()"></label>
+  <span>${C.file?esc(C.file.name)+' · '+fmt(C.file.size):''}</span></div>
+  <div class="row"><label>${t('target')}:</label><select id="ck" class="big" style="max-width:150px">${[20,50,100,200,500,1000].map(k=>`<option value="${k}" ${k===200?'selected':''}>${k>=1000?'1 MB':k+' KB'}</option>`).join('')}</select>
+  <label>${t('maxdim')}:</label><input id="cd" type="number" class="big" style="max-width:130px" placeholder="e.g. 800">
+  <label>${t('output')}:</label><select id="co" class="big" style="max-width:150px"><option value="auto">Auto</option><option value="jpg">JPG</option><option value="pdf">PDF</option></select></div>
+  <button class="btn pri" onclick="runCompress()">🗜 ${t('run')}</button>
+  <p class="note">PDF compression re-renders pages as images, so selectable text is lost. Photos work best for ID uploads.</p><div id="cres"></div></div>`;
+  if(C.out)showCompressed();
+}
+async function runCompress(){
+  const f=C.file;if(!f)return toast(t('pickFile'));
+  await run(async()=>{
+    const kb=+$('#ck').value||200,dim=+$('#cd').value||0,fmtSel=$('#co').value,isPdf=f.type==='application/pdf';let out,ext;
+    if(isPdf&&fmtSel!=='jpg'){out=await compressPdf(f,kb);ext='pdf'}
+    else if(isPdf){out=await compressSource(await rasterize(f,2200),{maxKB:kb,maxDim:dim});ext='jpg'}
+    else{out=await compressImage(f,{maxKB:kb,maxDim:dim});ext='jpg';if(fmtSel==='pdf'){out=await imgToPdf(out);ext='pdf'}}
+    C.out=out;C.ext=ext;C.kb=kb;showCompressed();
+  });
+}
+function showCompressed(){
+  const o=C.out,f=C.file,name=f.name.replace(/\.[^.]+$/,'')+'-small.'+C.ext,ok=o.size<=C.kb*1024;
+  $('#cres').innerHTML=`<div class="box"><b>${fmt(f.size)} → ${fmt(o.size)}</b> ${ok?'✅':'⚠ could not reach the target. Try a larger size or smaller dimensions.'}
+  ${C.ext==='jpg'?`<img src="${URL.createObjectURL(o)}" style="max-width:100%;max-height:300px;display:block;margin:8px 0;border-radius:8px">`:''}
+  <div class="row"><button class="btn pri" onclick="dlBlob(C.out,'${name.replace(/'/g,'')}')">⬇ ${t('download')}</button>
+  <select id="cv2" class="big" style="max-width:260px">${catOpts()}</select><button class="btn" onclick="saveCompressed('${name.replace(/'/g,'')}')">🗂 ${t('save')}</button></div></div>`;
+}
+async function saveCompressed(name){await dbAdd({name,cat:$('#cv2').value,type:C.ext==='pdf'?'application/pdf':'image/jpeg',size:C.out.size,date:Date.now(),blob:C.out});toast('✅ '+t('saved'))}
+
+/* ---------- Profile + bookmarklet autofill ---------- */
+function vProfile(){
+  $('#view').innerHTML=`<p class="note">🔒 ${t('local')}</p><div class="pf">${PF.map(p=>{
+    const v=esc(S.profile[p.k]||'');
+    const inp=p.opts?`<select id="pf_${p.k}" onchange="setP('${p.k}',this.value)"><option value="">—</option>${p.opts.map(o=>`<option ${o===S.profile[p.k]?'selected':''}>${o}</option>`).join('')}</select>`
+      :`<input id="pf_${p.k}" value="${v}" oninput="setP('${p.k}',this.value)"><button onclick="micP('${p.k}')" title="speak">🎤</button>`;
+    return `<div><label>${L(p)}</label><div class="in">${inp}</div></div>`}).join('')}</div>
+  <div class="box"><b>⚡ ${t('autofill')}</b><p>${t('bmDesc')}</p>
+  <div class="row"><a id="bm" class="btn pri" href="#" onclick="if(this.getAttribute('href')==='#')return false">⚡ ${t('fillBtn')}</a><button class="btn" onclick="copyBm()">📋 ${t('copyCode')}</button></div>
+  <p class="note">${t('bmNote')}</p></div>
+  <button class="btn danger" onclick="wipe()">🗑 ${t('wipe')}</button>`;
+  setBm();
+}
+function setP(k,v){
+  S.profile[k]=v;store.set('profile',S.profile);setBm();
+  if(k==='state'){const s=STATES.find(x=>x[0]===v);if(s){S.lang=s[1];store.set('lang',S.lang);$('#langSel').value=S.lang;toast('🔊 '+langName(S.lang))}}
+}
+function micP(k){listen(txt=>{const e=$('#pf_'+k);let v=txt;if(['mobile','aadhaar','pin','bank'].includes(k))v=txt.replace(/\D/g,'');if(k==='email')v=txt.replace(/\s/g,'').replace(/at the rate/i,'@').toLowerCase();e.value=v;setP(k,v)})}
+function wipe(){if(confirm('Erase profile, documents and complaints from this device?')){localStorage.clear();indexedDB.deleteDatabase('saathi');location.reload()}}
+function __fill(P){
+  var R=[['father',/father|husband|guardian|पिता|पति/i],['mother',/mother|माता/i],['aadhaar',/aadh?a+r|\buid\b|आधार/i],['pan',/\bpan\b|पैन/i],['ifsc',/ifsc/i],['bank',/account|a\/c|खाता/i],['mobile',/mobile|phone|cell|मोबाइल/i],['email',/e-?mail|ईमेल/i],['pin',/pin.?code|postal|zip|पिन/i],['dob',/dob|birth|जन्म/i],['gender',/gender|sex|लिंग/i],['district',/district|जिला/i],['state',/state|राज्य/i],['addr',/address|पता/i],['income',/income|आय/i],['category',/category|caste|वर्ग|जाति/i],['name',/name|नाम/i]];
+  var n=0;
+  function label(e){
+    var t=[e.name,e.id,e.placeholder,e.getAttribute('aria-label'),e.title].join(' ');
+    if(e.id){var l=document.querySelector('label[for="'+e.id+'"]');if(l)t+=' '+l.innerText}
+    var p=e.parentElement;if(p&&p.innerText&&p.innerText.length<60)t+=' '+p.innerText;
+    var td=e.closest('td');if(td&&td.previousElementSibling)t+=' '+td.previousElementSibling.innerText;
+    return t;
+  }
+  function set(e,v){
+    if(e.tagName==='SELECT'){
+      var o=[].find.call(e.options,function(o){return (o.text+' '+o.value).toLowerCase().indexOf(String(v).toLowerCase())>-1});
+      if(!o)return false;e.value=o.value;
+    }else{
+      var pr=e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(pr,'value').set.call(e,v);
+    }
+    ['input','change','blur'].forEach(function(ev){e.dispatchEvent(new Event(ev,{bubbles:true}))});
+    e.style.outline='3px solid #ff9933';return true;
+  }
+  document.querySelectorAll('input,select,textarea').forEach(function(e){
+    var ty=(e.type||'').toLowerCase();
+    if(['hidden','password','submit','button','file','checkbox','radio','image'].indexOf(ty)>-1||e.disabled||e.readOnly)return;
+    var t=label(e);if(/captcha|otp|password|security/i.test(t))return;
+    for(var i=0;i<R.length;i++){
+      if(R[i][1].test(t)){
+        var k=R[i][0];
+        if(k==='name'&&/bank|district|school|village|state|college|user|father|mother/i.test(t))continue;
+        var v=P[k];if(!v)break;if(set(e,v))n++;break;
+      }
+    }
+  });
+  alert(n+' fields filled (highlighted in orange).\nPlease check every field, type the captcha / OTP yourself, then submit.');
+}
+const bmCode=()=>'javascript:'+encodeURIComponent('('+__fill.toString()+')('+JSON.stringify(S.profile)+')');
+function setBm(){const a=$('#bm');if(a)a.href=bmCode()}
+function copyBm(){copyText(bmCode())}
+
+/* ---------- AI helper ---------- */
+let SC={file:null},lastScan=null;
+async function vAI(){
+  $('#view').innerHTML=`<div class="box"><b>🔍 ${t('scan')}</b><p>${t('scanDesc')}</p>
+  <div class="row"><label class="btn pri">📁 ${t('upload')}<input type="file" hidden accept="image/*,application/pdf" onchange="SC.file=this.files[0];$('#sfn').textContent=SC.file.name"></label>
+  <button class="btn" onclick="openCam('scan')">📷 ${t('camera')}</button><select id="sv" class="big" style="max-width:260px"></select><span id="sfn">${SC.file?(SC.file.name||'📎'):''}</span></div>
+  <button class="btn pri" onclick="runScan()">🔍 ${t('understand')}</button><div id="so"></div></div>
+  <div class="box"><b>💬 ${t('chat')}</b>
+  <div class="chips">${(S.ui==='hi'?['मैं किन स्कॉलरशिप के लिए पात्र हूँ?','पासपोर्ट के लिए कौन से कागज़ चाहिए?','फॉर्म में गलती हो गई तो क्या करें?']:['Which scholarships am I eligible for?','What documents do I need for a passport?','I made a mistake in my form. What now?']).map(x=>`<button onclick="$('#cm').value=this.textContent;sendChat()">${esc(x)}</button>`).join('')}</div>
+  <div id="ch" class="chat"></div>
+  <div class="row"><input id="cm" class="big" style="flex:1" placeholder="${t('typeHere')}" onkeydown="if(event.key==='Enter')sendChat()"><button class="btn" onclick="listen(x=>{$('#cm').value=x;sendChat()},S.lang)">🎤</button><button class="btn pri" onclick="sendChat()">➤</button></div></div>`;
+  const docs=await dbAll();$('#sv').innerHTML=`<option value="">🗂 …</option>`+docs.map(d=>`<option value="${d.id}">${DOCS[d.cat]?DOCS[d.cat].ic:''} ${esc(d.name)}</option>`).join('');
+  drawChat();
+}
+async function runScan(){
+  await run(async()=>{
+    let blob=SC.file;const sv=$('#sv').value;if(!blob&&sv)blob=(await dbGet(+sv)).blob;
+    if(!blob)throw new Error(t('pickFile'));
+    const keys=PF.map(p=>p.k).join(', '),ln=langName(S.lang);
+    const sys=`You are Sarkari Saathi, an expert on Indian government forms, portals and schemes. The user may be illiterate or a first-time user. Look at the image of a form, notice or web page. Reply with ONLY valid JSON, no markdown, in this schema: {"form_name":"","summary":"","documents_needed":[""],"fields":[{"label":"exactly as printed on the form","meaning":"","profile_key":"one of [${keys}] or null","tip":""}],"warnings":["common mistakes or things to double-check"],"how_to_submit":""}. Write form_name, summary, documents_needed, meaning, tip, warnings and how_to_submit in ${ln}, in very simple words and short sentences. Never invent values for the user.`;
+    const txt=await llm(sys,[{role:'user',text:'Explain this form and list every field I must fill.',images:[await toPayload(blob)]}]);
+    const m=txt.match(/\{[\s\S]*\}/);if(!m)throw new Error('AI did not return a form summary. Try a clearer photo.');
+    lastScan=JSON.parse(m[0]);showScan();
+  });
+}
+function showScan(){
+  const s=lastScan,fields=s.fields||[];let missing=0;
+  const rows=fields.map(f=>{const v=f.profile_key?S.profile[f.profile_key]:'';if(f.profile_key&&!v)missing++;
+    return `<tr><td><b>${esc(f.label)}</b><br><small>${esc(f.meaning||'')}</small>${f.tip?`<br><small>💡 ${esc(f.tip)}</small>`:''}</td><td>${v?esc(v):(f.profile_key?`<a href="#" onclick="go('profile');return false">⚠ ${esc(f.profile_key)}</a>`:'—')}</td></tr>`}).join('');
+  $('#so').innerHTML=`<h3>${esc(s.form_name||'')}</h3><p>${esc(s.summary||'')}</p>
+  <div class="row"><button class="btn pri" onclick="speakScan()">🔊 ${t('listen')}</button></div>
+  ${(s.documents_needed||[]).length?`<b>📎</b><ul>${s.documents_needed.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>`:''}
+  ${missing?`<div class="warn">⚠ ${missing} details missing in "${t('profile')}"</div>`:''}
+  ${(s.warnings||[]).map(w=>`<div class="warn">⚠ ${esc(w)}</div>`).join('')}
+  <table>${rows}</table>${s.how_to_submit?`<p>📮 ${esc(s.how_to_submit)}</p>`:''}`;
+}
+function speakScan(){const s=lastScan;speak([s.summary,...(s.warnings||[]),s.how_to_submit].filter(Boolean).join('. '),S.lang)}
+function drawChat(){
+  const c=$('#ch');if(!c)return;
+  c.innerHTML=S.chat.map((m,i)=>`<div class="msg ${m.role==='user'?'u':'a'}">${esc(m.text)}${m.role==='assistant'?`<div><button class="btn" style="padding:2px 10px;margin-top:6px" onclick="speak(S.chat[${i}].text)">🔊</button></div>`:''}</div>`).join('');c.scrollTop=c.scrollHeight;
+}
+async function sendChat(){
+  const inp=$('#cm'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  S.chat.push({role:'user',text:txt});drawChat();
+  await run(async()=>{
+    const sys=`You are Sarkari Saathi, a patient helper for Indian citizens dealing with government forms, schemes, documents and complaints. Reply in ${langName(S.lang)} using very simple words, short sentences and numbered steps. Mention only official websites (.gov.in / .nic.in). Never ask for OTP, passwords or Aadhaar numbers. Warn against paying agents or fake websites. If you are not sure of a rule or fee, say it varies by state and tell the user to confirm on the official site. User context: ${ctxProfile()}.`;
+    const out=await llm(sys,S.chat.slice(-10).map(m=>({role:m.role,text:m.text})));
+    S.chat.push({role:'assistant',text:out});drawChat();speak(out);
+  });
+}
+
+/* ---------- Complaints ---------- */
+function vComplaints(){
+  const links=[['CPGRAMS (central govt grievances)','https://pgportal.gov.in'],['National Consumer Helpline','https://consumerhelpline.gov.in'],['Cyber crime portal (helpline 1930)','https://cybercrime.gov.in']];
+  $('#view').innerHTML=`<div class="box"><b>📢 ${t('addComplaint')}</b>
+  <div class="row"><input id="ct" class="big" style="flex:2" placeholder="${t('ctitle')}"><button class="btn" onclick="listen(x=>$('#ct').value=x,S.lang)">🎤</button></div>
+  <div class="row"><input id="cdp" class="big" style="flex:1" placeholder="${t('cdept')}"><input id="crf" class="big" style="flex:1" placeholder="${t('cref')}"></div>
+  <div class="row"><button class="btn pri" onclick="addComplaint()">➕ ${t('save')}</button><button class="btn" onclick="draftComplaint()">✨ ${t('draft')}</button></div><div id="cdraft"></div></div>
+  <div class="box"><b>${t('official')}</b><div class="row">${links.map(l=>`<a class="btn" target="_blank" rel="noopener" href="${l[1]}">${l[0]}</a>`).join('')}</div></div>
+  ${S.compl.map((c,i)=>`<div class="box"><b>${esc(c.title)}</b><br><small>${esc(c.dept||'')} · ${esc(c.ref||'—')} · ${new Date(c.date).toLocaleDateString()}</small>
+  <div class="row"><select class="big" style="max-width:200px" onchange="S.compl[${i}].status=this.value;store.set('compl',S.compl)">${['filed','progress','resolved'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${t(s)}</option>`).join('')}</select><button class="btn danger" onclick="S.compl.splice(${i},1);store.set('compl',S.compl);vComplaints()">🗑</button></div></div>`).join('')}`;
+}
+function addComplaint(){const ti=$('#ct').value.trim();if(!ti)return;S.compl.unshift({title:ti,dept:$('#cdp').value,ref:$('#crf').value,status:'filed',date:Date.now()});store.set('compl',S.compl);vComplaints()}
+async function draftComplaint(){
+  const ti=$('#ct').value.trim();if(!ti)return toast(t('ctitle'));
+  await run(async()=>{
+    const out=await llm('You write polite, firm, factual complaint letters to Indian government departments. Output: (1) a formal letter in English with placeholders in [brackets] for missing facts, then (2) a 3-line summary in '+langName(S.lang)+' in very simple words.',[{role:'user',text:`Problem: ${ti}\nDepartment: ${$('#cdp').value||'unknown'}\nApplicant context: ${ctxProfile()}`}]);
+    $('#cdraft').innerHTML=`<div class="box"><div style="white-space:pre-wrap">${esc(out)}</div><div class="row"><button class="btn" onclick="copyText(this.parentElement.previousElementSibling.textContent)">📋 ${t('copy')}</button></div></div>`;
+  });
+}
+
+/* ---------- Settings ---------- */
+function openSettings(){
+  const c=S.cfg;
+  modal(`<h2>⚙ AI settings</h2><p class="note">Your key stays in this browser only. For a real deployment, put the key on a small server and call it from there.</p>
+  <div class="row"><select id="sp" class="big"><option value="claude" ${c.provider==='claude'?'selected':''}>Claude (Anthropic)</option><option value="gemini" ${c.provider==='gemini'?'selected':''}>Gemini (Google)</option></select></div>
+  <div class="row"><input id="sk" type="password" class="big" placeholder="API key" value="${esc(c.key)}"></div>
+  <div class="row"><input id="sm" class="big" placeholder="Model (optional)" value="${esc(c.model)}"></div>
+  <button class="btn pri" onclick="S.cfg={provider:$('#sp').value,key:$('#sk').value.trim(),model:$('#sm').value.trim()};store.set('cfg',S.cfg);closeModal();toast('✅')">${t('save')}</button>`);
+}
+
+render();
+</script>
+</body>
+</html>
